@@ -33,13 +33,13 @@ getSWFs()
 	# Looping through all IDs
 	while [ $GAME_ID -le $MAX_GAME_ID ]; do
 		# Grepping ".swf" from a page and saving it into a variable
-		PAGE_SWF_GREP=$(curl -sN "https://joemonster.org/gry/$GAME_ID" | grep ".swf" | head -n2 | tail -n1)
+		PAGE_SWF_GREP=$(curl -sN "https://joemonster.org/gry/$GAME_ID" | grep "\.swf" | head -n2 | tail -n1)
 			# Determine if page contains a Flash game
 			if [[ $PAGE_SWF_GREP == "" ]]; then
-				echo ID $GAME_ID is not a flash game
+				echo $GAME_ID is not a flash game
 			else
 				PAGE_SWF_GREP_PARSED=$(echo ${PAGE_SWF_GREP})
-				echo ID $GAME_ID is a flash game: $PAGE_SWF_GREP_PARSED
+				echo $GAME_ID is a flash game: $PAGE_SWF_GREP_PARSED
 			fi
 		((GAME_ID++))
 	done
