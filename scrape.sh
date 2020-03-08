@@ -73,7 +73,7 @@ getSWFs()
 
 		# Grepping ".swf" from the page and saving it into a variable
 
-		PAGE_SWF_GREP=$(grep "\.swf" <<< $PAGE_RAW | head -n2 | tail -n1)
+		PAGE_SWF_GREP=$(grep '\.swf"' <<< $PAGE_RAW | head -n2 | tail -n1)
 
 			# Determine if page contains a Flash game
 
@@ -185,7 +185,7 @@ getSWFs()
 
 				echo [$GAME_ID] Writing metadata...
 				echo $DATE [$GAME_ID] Writing metadata >> $LOG_FILE
-				printf "Title: $GAME_TITLE\nSeries:\nDeveloper: $DEVELOPER\nPublisher:\nPlay mode:\nStatus: Playable\nExtreme: No\nGenre: $CATEGORY\nSource: Joe Monster.org\nLaunch Command: $LAUNCH_COMMAND_PARSED\nNotes:\nAuthor Notes:\nCuration Notes: Scraped using https://github.com/Czechball/JoeMonster.org-Parser" > "$WORKING_DIRECTORY/$GAME_ID _ $GAME_TITLE/meta.yaml"
+				printf "Title: $GAME_TITLE\nSeries:\nDeveloper: $DEVELOPER\nPublisher:\nPlay mode:\nStatus: Playable\nExtreme: No\nGenre: $CATEGORY\nSource: $CURRENT_PAGE_URL\nLaunch Command: $LAUNCH_COMMAND_PARSED\nNotes:\nAuthor Notes:\nCuration Notes: Scraped using https://github.com/Czechball/JoeMonster.org-Parser" > "$WORKING_DIRECTORY/$GAME_ID _ $GAME_TITLE/meta.yaml"
 
 				echo "------"
 			fi
