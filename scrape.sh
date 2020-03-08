@@ -8,7 +8,7 @@ WORKING_DIRECTORY="./joemonster-swf-scrape"
 # Working directory may be changed later by parameters.
 
 LOG_FILE="$WORKING_DIRECTORY/log.txt"
-DATABASE_FILE="$WORKING_DIRECTORY/database.csv"
+DATABASE_FILE="$WORKING_DIRECTORY/$FILE_DATE-database.csv"
 
 # Same goes for the log and database file.
 
@@ -60,11 +60,16 @@ getSWFs()
 		DATE=$(date)
 		DATABASE_DATE=$(date "+%Y-%d-%m %I:%M:%S")
 		FILE_DATE=$(date "+%Y-%d-%m_%I-%M-%S")
+		CATEGORY=""
+		LIBRARY=""
+		DEVELOPER=""
 		echo $DATE [$GAME_ID] Checking ID... >> $LOG_FILE
 
 		# Downloading the whole page
 
-		PAGE_RAW=$(curl -sN "https://joemonster.org/gry/$GAME_ID")
+		CURRENT_PAGE_URL="https://joemonster.org/gry/$GAME_ID"
+
+		PAGE_RAW=$(curl -sN $CURRENT_PAGE_URL)
 
 		# Grepping ".swf" from the page and saving it into a variable
 
@@ -111,7 +116,13 @@ getSWFs()
 				elif (grep '<a href="/filmy/kategoria/33/Mikolajki">Mikołajki</a>' <<< $PAGE_RAW >/dev/null); then
 					CATEGORY="Christmass"
 					LIBRATY="Theatre"
-				elif (grep '')
+				elif (grep '<a href="/filmy/kategoria/31/Jajecznica">Jajecznica</a>' <<< $PAGE_RAW >/dev/null); then
+					CATEGORY="Animation"
+					LIBRARY="Theatre"
+				elif (grep '<a href="/filmy/kategoria/28/Lenore">Lenore</a>' <<< $PAGE_RAW >/dev/null); then
+					CATEGORY="Comedy"
+					LIBRARY="Theatre"
+					DEVELOPER="Roman Dirge"
 				else
 					LIBRARY="Arcade"
 					if (grep '<a href="/gry/kategoria/35/Gry">Gry</a>' <<< $PAGE_RAW >/dev/null); then
@@ -143,13 +154,33 @@ getSWFs()
 				# We have a game category. Now we will get the game title
 
 				GAME_TITLE_UNPARSED=$(grep '<b class="title ">' <<< $PAGE_RAW | cut -c 20-)
-				GAME_TITLE_PARSED=$(echo ${GAME_TITLE_UNPARSED::-4})
-				echo [$GAME_ID] Title: $GAME_TITLE_PARSED
-				echo $DATE [$GAME_ID] Title: $GAME_TITLE_PARSED >> $LOG_FILE
+				GAME_TITLE=$(echo ${GAME_TITLE_UNPARSED::-4})
+				echo [$GAME_ID] Title: $GAME_TITLE
+				echo $DATE [$GAME_ID] Title: $GAME_TITLE >> $LOG_FILE
 				echo [$GAME_ID] Library: $LIBRARY
 				echo $DATE [$GAME_ID] Library: $LIBRARY >> $LOG_FILE
 				echo [$GAME_ID] Category: $CATEGORY
 				echo $DATE [$GAME_ID] Category: $CATEGORY >> $LOG_FILE
+				echo [$GAME_ID] Developer: $DEVELOPER
+				echo $DATE [$GAME_ID] Developer: $DEVELOPER >> $LOG_FILE
+
+				# Save all info into database
+
+				echo "$GAME_ID,$GAME_TITLE,$CATEGORY,$DEVELOPER,$PAGE_SWF_GREP_PARSED,$CURRENT_PAGE_URL" >> $DATABASE_FILE
+				echo [$GAME_ID] Saved info into $DATABASE_FILE
+				echo $DATE [$GAME_ID] Saved info into $DATABASE_FILE >> $LOG_FILE
+
+				# Download the swf file and write metadata
+
+				echo [$GAME_ID] Downloading swf file...
+				echo $DATE [$GAME_ID] Downloading swf file... >> $LOG_FILE
+				mkdir -p "$WORKING_DIRECTORY/$GAME_ID _ $GAME_TITLE/content"
+				wget --quiet --show-progress -r -P "$WORKING_DIRECTORY/$GAME_ID _ $GAME_TITLE/content/" $PAGE_SWF_GREP_PARSED
+
+				echo [$GAME_ID] Writing metadata...
+				echo $DATE [$GAME_ID] Writing metadata >> $LOG_FILE
+				printf "Title: $GAME_TITLE\nSeries:\nDeveloper: $DEVELOPER\nPublisher:\nPlay mode:\nStatus: Playable\nExtreme: No\nGenre: $CATEGORY\nSource: Joe Monster.org\nLaunch Command: $PAGE_SWF_GREP_PARSED\nNotes:\nAuthor Notes:\nCuration Notes: Scraped using https://github.com/Czechball/JoeMonster.org-Parser" > "$WORKING_DIRECTORY/$GAME_ID _ $GAME_TITLE/meta.yaml"
+
 				echo "------"
 			fi
 
@@ -159,5 +190,6 @@ getSWFs()
 
 mkdir -p $WORKING_DIRECTORY
 echo "$DATE --- STARTED NEW SCRAPING SESSION ---" >> $LOG_FILE
+echo "id,title,category,developer,swf_url,page_url" >> $DATABASE_FILE
 getMaxID
 getSWFs
