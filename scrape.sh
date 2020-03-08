@@ -98,9 +98,11 @@ getSWFs()
 				# Tower Defence = Tower Defense
 				# Układanki, zgadywanki = Puzzle
 				# Zręcznościówki = Arcade
+
 				# Animacje = Animation
 				# Mikołajki = Christmass
 				# Jajecznica = "Scrambled Eggs" - literally content related to eggs
+				# Dla_dorosłych = Adult content (available only for members)
 
 				echo $DATE [$GAME_ID] Extracting category... >> $LOG_FILE
 				if (grep 'Animacje' <<< $PAGE_RAW >/dev/null); then
@@ -109,6 +111,7 @@ getSWFs()
 				elif (grep '<a href="/filmy/kategoria/33/Mikolajki">Mikołajki</a>' <<< $PAGE_RAW >/dev/null); then
 					CATEGORY="Christmass"
 					LIBRATY="Theatre"
+				elif (grep '')
 				else
 					LIBRARY="Arcade"
 					if (grep '<a href="/gry/kategoria/35/Gry">Gry</a>' <<< $PAGE_RAW >/dev/null); then
@@ -128,7 +131,7 @@ getSWFs()
 					elif (grep '<a href="/gry/kategoria/69/Tower_Defence">Tower Defence</a>' <<< $PAGE_RAW >/dev/null); then
 						CATEGORY="Tower Defense"
 					elif (grep '<a href="/gry/kategoria/68/Ukladanki_zgadywanki">Układanki, zgadywanki</a>' <<< $PAGE_RAW >/dev/null); then
-						CATEGORY="Puzzle"E
+						CATEGORY="Puzzle"
 					elif (grep '<a href="/gry/kategoria/40/Zrecznosciowki">Zręcznościówki</a>' <<< $PAGE_RAW >/dev/null); then
 						CATEGORY="Arcade"
 					else
