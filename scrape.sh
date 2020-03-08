@@ -177,9 +177,14 @@ getSWFs()
 				mkdir -p "$WORKING_DIRECTORY/$GAME_ID _ $GAME_TITLE/content"
 				wget --quiet --show-progress -r -P "$WORKING_DIRECTORY/$GAME_ID _ $GAME_TITLE/content/" $PAGE_SWF_GREP_PARSED
 
+				# Replacing https with http in launch command
+				LAUNCH_COMMAND_UNPARSED=$(echo $PAGE_SWF_GREP_PARSED | sed 's/https\?:\/\///')
+				LAUNCH_COMMAND_PARSED="http://$LAUNCH_COMMAND_UNPARSED"
+				echo $LAUNCH_COMMAND_PARSED
+
 				echo [$GAME_ID] Writing metadata...
 				echo $DATE [$GAME_ID] Writing metadata >> $LOG_FILE
-				printf "Title: $GAME_TITLE\nSeries:\nDeveloper: $DEVELOPER\nPublisher:\nPlay mode:\nStatus: Playable\nExtreme: No\nGenre: $CATEGORY\nSource: Joe Monster.org\nLaunch Command: $PAGE_SWF_GREP_PARSED\nNotes:\nAuthor Notes:\nCuration Notes: Scraped using https://github.com/Czechball/JoeMonster.org-Parser" > "$WORKING_DIRECTORY/$GAME_ID _ $GAME_TITLE/meta.yaml"
+				printf "Title: $GAME_TITLE\nSeries:\nDeveloper: $DEVELOPER\nPublisher:\nPlay mode:\nStatus: Playable\nExtreme: No\nGenre: $CATEGORY\nSource: Joe Monster.org\nLaunch Command: $LAUNCH_COMMAND_PARSED\nNotes:\nAuthor Notes:\nCuration Notes: Scraped using https://github.com/Czechball/JoeMonster.org-Parser" > "$WORKING_DIRECTORY/$GAME_ID _ $GAME_TITLE/meta.yaml"
 
 				echo "------"
 			fi
