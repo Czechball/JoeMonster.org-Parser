@@ -12,7 +12,7 @@ DATABASE_FILE="$WORKING_DIRECTORY/database.csv"
 
 # Same goes for the log and database file.
 
-MIN_GAME_ID=850
+MIN_GAME_ID=752
 
 # 752
 # This is the lowest ID in https://joemonster.org/gry/, lower numbers than this are other various items.
