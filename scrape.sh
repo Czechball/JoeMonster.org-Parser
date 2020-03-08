@@ -12,8 +12,9 @@ DATABASE_FILE="$WORKING_DIRECTORY/database.csv"
 
 # Same goes for the log and database file.
 
-MIN_GAME_ID=752
+MIN_GAME_ID=850
 
+# 752
 # This is the lowest ID in https://joemonster.org/gry/, lower numbers than this are other various items.
 
 GAME_ID=$MIN_GAME_ID
@@ -55,11 +56,11 @@ getSWFs()
 
 	# Looping through all IDs
 
-	while [ $GAME_ID -le $MAX_GAME_ID ]; do
+	while [ $MIN_GAME_ID -le $MAX_GAME_ID ]; do
 		DATE=$(date)
 		DATABASE_DATE=$(date "+%Y-%d-%m %I:%M:%S")
 		FILE_DATE=$(date "+%Y-%d-%m_%I-%M-%S")
-		echo $DATE Checking ID $GAME_ID... >> $LOG_FILE
+		echo $DATE [$GAME_ID] Checking ID... >> $LOG_FILE
 
 		# Downloading the whole page
 
@@ -75,16 +76,16 @@ getSWFs()
 				DATE=$(date)
 				DATABASE_DATE=$(date "+%Y-%d-%m %I:%M:%S")
 				FILE_DATE=$(date "+%Y-%d-%m_%I-%M-%S")
-				echo $GAME_ID is not a flash game
-				echo $DATE $GAME_ID is not a flash game >> $LOG_FILE
+				echo [$GAME_ID] does not contain Flash
+				echo $DATE [$GAME_ID] does not contain Flash >> $LOG_FILE
 				# Link to a .swf file is not found on this page, continue to the next ID
 			else
 				DATE=$(date)
 				DATABASE_DATE=$(date "+%Y-%d-%m %I:%M:%S")
 				FILE_DATE=$(date "+%Y-%d-%m_%I-%M-%S")
 				PAGE_SWF_GREP_PARSED=$(echo ${PAGE_SWF_GREP:7:-1})
-				echo $GAME_ID is a flash game: $PAGE_SWF_GREP_PARSED
-				echo $DATE $GAME_ID is a flash game: $PAGE_SWF_GREP_PARSED >> $LOG_FILE
+				echo [$GAME_ID] contains Flash: $PAGE_SWF_GREP_PARSED
+				echo $DATE [$GAME_ID] contains Flash: $PAGE_SWF_GREP_PARSED >> $LOG_FILE
 				# Now that we know that this page contains a Flash game, we need to extract the game title and category name
 
 				# Inne = Other
@@ -97,35 +98,56 @@ getSWFs()
 				# Tower Defence = Tower Defense
 				# Układanki, zgadywanki = Puzzle
 				# Zręcznościówki = Arcade
+				# Animacje = Animation
+				# Mikołajki = Christmass
+				# Jajecznica = "Scrambled Eggs" - literally content related to eggs
 
-				if (grep '<a href="/gry/kategoria/35/Gry">Gry</a>' <<< $PAGE_RAW >/dev/null); then
-					CATEGORY="Other"
-				elif (grep '<a href="/gry/kategoria/41/Logiczne">Logiczne</a>' <<< $PAGE_RAW >/dev/null); then
-					CATEGORY="Logic"
-				elif (grep '<a href="/gry/kategoria/37/Platformowki">Platformówki</a>' <<< $PAGE_RAW >/dev/null); then
-					CATEGORY="Platformer"
-				elif (grep '<a href="/gry/kategoria/39/Przygodowki">Przygodówki</a>' <<< $PAGE_RAW >/dev/null); then
-					CATEGORY="Adventure"
-				elif (grep '<a href="/gry/kategoria/36/Sportowe">Sportowe</a>' <<< $PAGE_RAW >/dev/null); then
-					CATEGORY="Sports"
-				elif (grep '<a href="/gry/kategoria/66/Strategiczne">Strategiczne</a>' <<< $PAGE_RAW >/dev/null); then
-					CATEGORY="Strategy"
-				elif (grep '<a href="/gry/kategoria/38/Strzelanki">Strzelanki</a>' <<< $PAGE_RAW >/dev/null); then
-					CATEGORY="Shooter"
-				elif (grep '<a href="/gry/kategoria/69/Tower_Defence">Tower Defence</a>' <<< $PAGE_RAW >/dev/null); then
-					CATEGORY="Tower Defense"
-				elif (grep '<a href="/gry/kategoria/68/Ukladanki_zgadywanki">Układanki, zgadywanki</a>' <<< $PAGE_RAW >/dev/null); then
-					CATEGORY="Puzzle"E
-				elif (grep '<a href="/gry/kategoria/40/Zrecznosciowki">Zręcznościówki</a>' <<< $PAGE_RAW >/dev/null); then
-					CATEGORY="Arcade"
+				echo $DATE [$GAME_ID] Extracting category... >> $LOG_FILE
+				if (grep 'Animacje' <<< $PAGE_RAW >/dev/null); then
+					CATEGORY="Animation"
+					LIBRARY="Theatre"
+				elif (grep '<a href="/filmy/kategoria/33/Mikolajki">Mikołajki</a>' <<< $PAGE_RAW >/dev/null); then
+					CATEGORY="Christmass"
+					LIBRATY="Theatre"
 				else
-					CATEGORY="Other (Empty)"
-					:
+					LIBRARY="Arcade"
+					if (grep '<a href="/gry/kategoria/35/Gry">Gry</a>' <<< $PAGE_RAW >/dev/null); then
+						CATEGORY="Other"
+					elif (grep '<a href="/gry/kategoria/41/Logiczne">Logiczne</a>' <<< $PAGE_RAW >/dev/null); then
+						CATEGORY="Logic"
+					elif (grep '<a href="/gry/kategoria/37/Platformowki">Platformówki</a>' <<< $PAGE_RAW >/dev/null); then
+						CATEGORY="Platformer"
+					elif (grep '<a href="/gry/kategoria/39/Przygodowki">Przygodówki</a>' <<< $PAGE_RAW >/dev/null); then
+						CATEGORY="Adventure"
+					elif (grep '<a href="/gry/kategoria/36/Sportowe">Sportowe</a>' <<< $PAGE_RAW >/dev/null); then
+						CATEGORY="Sports"
+					elif (grep '<a href="/gry/kategoria/66/Strategiczne">Strategiczne</a>' <<< $PAGE_RAW >/dev/null); then
+						CATEGORY="Strategy"
+					elif (grep '<a href="/gry/kategoria/38/Strzelanki">Strzelanki</a>' <<< $PAGE_RAW >/dev/null); then
+						CATEGORY="Shooter"
+					elif (grep '<a href="/gry/kategoria/69/Tower_Defence">Tower Defence</a>' <<< $PAGE_RAW >/dev/null); then
+						CATEGORY="Tower Defense"
+					elif (grep '<a href="/gry/kategoria/68/Ukladanki_zgadywanki">Układanki, zgadywanki</a>' <<< $PAGE_RAW >/dev/null); then
+						CATEGORY="Puzzle"E
+					elif (grep '<a href="/gry/kategoria/40/Zrecznosciowki">Zręcznościówki</a>' <<< $PAGE_RAW >/dev/null); then
+						CATEGORY="Arcade"
+					else
+						CATEGORY="Other (Empty)"
+						:
+					fi
 				fi
 
 				# We have a game category. Now we will get the game title
 
-				
+				GAME_TITLE_UNPARSED=$(grep '<b class="title ">' <<< $PAGE_RAW | cut -c 20-)
+				GAME_TITLE_PARSED=$(echo ${GAME_TITLE_UNPARSED::-4})
+				echo [$GAME_ID] Title: $GAME_TITLE_PARSED
+				echo $DATE [$GAME_ID] Title: $GAME_TITLE_PARSED >> $LOG_FILE
+				echo [$GAME_ID] Library: $LIBRARY
+				echo $DATE [$GAME_ID] Library: $LIBRARY >> $LOG_FILE
+				echo [$GAME_ID] Category: $CATEGORY
+				echo $DATE [$GAME_ID] Category: $CATEGORY >> $LOG_FILE
+				echo "------"
 			fi
 
 		((GAME_ID++))
