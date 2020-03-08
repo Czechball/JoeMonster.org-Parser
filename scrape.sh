@@ -83,6 +83,7 @@ getSWFs()
 				FILE_DATE=$(date "+%Y-%d-%m_%I-%M-%S")
 				echo [$GAME_ID] does not contain Flash
 				echo $DATE [$GAME_ID] does not contain Flash >> $LOG_FILE
+				echo "------"
 				# Link to a .swf file is not found on this page, continue to the next ID
 			else
 				DATE=$(date)
@@ -198,3 +199,5 @@ echo "$DATE --- STARTED NEW SCRAPING SESSION ---" >> $LOG_FILE
 echo "id,title,category,developer,swf_url,page_url" >> $DATABASE_FILE
 getMaxID
 getSWFs
+echo Scraping complete
+echo $DATE Scraping complete >> $DATABASE_FILE
